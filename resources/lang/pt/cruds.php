@@ -1479,6 +1479,8 @@ return [
             'bonus_helper'        => ' ',
             'tolls'               => 'Tolls',
             'tolls_helper'        => ' ',
+            'parks'               => 'Parks',
+            'parks_helper'        => ' ',
         ],
     ],
     'contractType' => [

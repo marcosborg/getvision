@@ -31,6 +31,7 @@ trait Reports
         $drivers = Driver::where('company_id', $company_id)
             ->where([
                 'state_id' => 1,
+                //'id' => 717
             ])
             ->orderBy('name')
             ->get()
@@ -39,93 +40,133 @@ trait Reports
                 'card',
                 'electric',
                 'contract_type.contract_type_ranks',
+                'team.drivers'
             ]);
-
-        $total_uber = [];
-        $total_bolt = [];
-        $total_private = [];
-        $total_operators = [];
 
         foreach ($drivers as $driver) {
-
-            $uber_activities = TvdeActivity::where([
-                'company_id' => $company_id,
-                'tvde_operator_id' => 1,
-                'tvde_week_id' => $tvde_week_id,
-                'driver_code' => $driver->uber_uuid
-            ])
-                ->get();
-
-            $bolt_activities = TvdeActivity::where([
-                'company_id' => $company_id,
-                'tvde_operator_id' => 2,
-                'tvde_week_id' => $tvde_week_id,
-                'driver_code' => $driver->bolt_name
-            ])
-                ->get();
-
-            $adjustments = Adjustment::whereHas('drivers', function ($query) use ($driver) {
-                $query->where('id', $driver->id);
-            })
-                ->where('company_id', $company_id)
-                ->where(function ($query) use ($tvde_week) {
-                    $query->where('start_date', '<=', $tvde_week->start_date)
-                        ->orWhereNull('start_date');
-                })
-                ->where(function ($query) use ($tvde_week) {
-                    $query->where('end_date', '>=', $tvde_week->end_date)
-                        ->orWhereNull('end_date');
-                })
-                ->get();
-
-            $refunds = [];
-            $deducts = [];
-
-            foreach ($adjustments as $adjustment) {
-                if ($adjustment->type == 'deduct') {
-                    $deducts[] = $adjustment->amount;
-                } else {
-                    $refunds[] = $adjustment->amount;
+            $driver = $this->driverWeekReport($tvde_week, $driver, $company_id);
+            //VERIFICAÇÃO EQUIPA
+            $net_final_team = [];
+            if ($driver->team->count() > 0) {
+                foreach ($driver->team as $team) {
+                    foreach ($team->drivers as $team_driver) {
+                        $team_driver = $this->driverWeekReport($tvde_week, $team_driver, $company_id);
+                        $company_margin = $team_driver->earnings['net_notip_nobonus'] * 0.1;
+                        $operators_tolls_dev = $team_driver->earnings['operators_tolls_dev'];
+                        $team_net = $team_driver->earnings['net_notip_nobonus'] - $company_margin - $team_driver->earnings['net_final'] + $operators_tolls_dev;
+                        $net_final_team[] = $team_net;
+                    }
                 }
             }
-
-            $refunds = array_sum($refunds);
-            $deducts = array_sum($deducts);
-            $adjustments = $refunds - $deducts;
-
-            $uber_gross = $uber_activities->sum('earnings_two');
-            $tips_uber = $uber_activities->sum('earnings_one');
-            $tolls_dev_uber = $uber_activities->sum('tolls');
-            $bolt_gross = $bolt_activities->sum('earnings_two');
-            $tips_bolt = $bolt_activities->sum('earnings_one');
-            $tolls_dev_bolt = $bolt_activities->sum('tolls');
-            $operators_gross = $uber_gross + $bolt_gross;
-            $operators_tips = $tips_uber + $tips_bolt;
-            $operators_tolls_dev = $tolls_dev_uber + $tolls_dev_bolt;
-
-            $gross_notip_nobonus = $operators_gross - $operators_tips;
-            $net_notip_nobonus = $gross_notip_nobonus * 0.94;
-            $net_tip_bonus = $operators_tips * 0.94;
-            $percent = $driver->contract_type->contract_type_ranks[0]->percent;
-            $net_notip_nobonus_after_contract = $net_notip_nobonus * ($percent / 100);
-            $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus - $adjustments;
-
-            $driver->earnings = collect([
-                'uber' => $uber_gross,
-                'bolt' => $bolt_gross,
-                'operators_gross' => $operators_gross,
-                'operators_tips' => $operators_tips,
-                'operators_tolls_dev' => $operators_tolls_dev,
-                'adjustments' => $adjustments,
-                'net_notip_nobonus' => $net_notip_nobonus,
-                'net_tip_bonus' => $net_tip_bonus,
-                'net_final' => $net_final,
-            ]);
+            $net_final_team = array_sum($net_final_team);
+            $driver->earnings['net_final_team'] = $net_final_team;
+            $driver->earnings['net_final'] = $driver->earnings['net_final'] + $net_final_team;
         }
 
         return [
             'drivers' => $drivers,
         ];
+    }
+
+    private function driverWeekReport($tvde_week, $driver, $company_id)
+    {
+        $uber_activities = TvdeActivity::where([
+            'company_id' => $company_id,
+            'tvde_operator_id' => 1,
+            'tvde_week_id' => $tvde_week->id,
+            'driver_code' => $driver->uber_uuid
+        ])
+            ->get();
+
+        $bolt_activities = TvdeActivity::where([
+            'company_id' => $company_id,
+            'tvde_operator_id' => 2,
+            'tvde_week_id' => $tvde_week->id,
+            'driver_code' => $driver->bolt_name
+        ])
+            ->get();
+
+        $adjustments = Adjustment::whereHas('drivers', function ($query) use ($driver) {
+            $query->where('id', $driver->id);
+        })
+            ->where('company_id', $company_id)
+            ->where(function ($query) use ($tvde_week) {
+                $query->where('start_date', '<=', $tvde_week->start_date)
+                    ->orWhereNull('start_date');
+            })
+            ->where(function ($query) use ($tvde_week) {
+                $query->where('end_date', '>=', $tvde_week->end_date)
+                    ->orWhereNull('end_date');
+            })
+            ->get();
+
+        $refunds = [];
+        $deducts = [];
+
+        foreach ($adjustments as $adjustment) {
+            if ($adjustment->type == 'deduct') {
+                $deducts[] = $adjustment->amount;
+            } else {
+                $refunds[] = $adjustment->amount;
+            }
+        }
+
+        $refunds = array_sum($refunds);
+        $deducts = array_sum($deducts);
+        $adjustments = $refunds - $deducts;
+
+        $uber_gross = $uber_activities->sum('earnings_two');
+        $tips_uber = $uber_activities->sum('earnings_one');
+        $tolls_dev_uber = $uber_activities->sum('tolls');
+        $parks_dev_uber = $uber_activities->sum('parks');
+        $bonus_dev_uber = $uber_activities->sum('bonus');
+        $bolt_gross = $bolt_activities->sum('earnings_two');
+        $tips_bolt = $bolt_activities->sum('earnings_one');
+        $tolls_dev_bolt = $bolt_activities->sum('tolls');
+        $parks_dev_bolt = $bolt_activities->sum('parks');
+        $bonus_dev_bolt = $bolt_activities->sum('bonus');
+        $operators_gross = $uber_gross + $bolt_gross;
+        $operators_tips = $tips_uber + $tips_bolt;
+        $operators_parks_dev = $parks_dev_uber + $parks_dev_bolt;
+        $operators_tolls_dev = $tolls_dev_uber + $tolls_dev_bolt + $operators_parks_dev;
+        $operators_bonus_dev = $bonus_dev_uber + $bonus_dev_bolt;
+
+        $gross_notip_nobonus = $operators_gross - $operators_tips - $operators_bonus_dev;
+        $net_notip_nobonus = $gross_notip_nobonus * 0.94;
+        $net_tip_bonus = ($operators_tips + $operators_bonus_dev) * 0.94;
+        $percent = $driver->contract_type->contract_type_ranks[0]->percent;
+        $net_notip_nobonus_after_contract = $net_notip_nobonus * ($percent / 100);
+
+        switch ($driver->contract_type->id) {
+            case 19:
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments;
+                break;
+            case 21:
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments + $operators_tolls_dev;
+                break;
+            case 22:
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments;
+                break;
+            default:
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments + $operators_tolls_dev;
+                break;
+        }
+
+        $driver->earnings = collect([
+            'uber' => $uber_gross,
+            'bolt' => $bolt_gross,
+            'operators_gross' => $operators_gross,
+            'operators_tips' => $operators_tips,
+            'net_notip_nobonus_after_contract' => $net_notip_nobonus_after_contract,
+            'operators_tolls_dev' => $operators_tolls_dev,
+            'operators_bonus_dev' => $operators_bonus_dev,
+            'adjustments' => $adjustments,
+            'net_notip_nobonus' => $net_notip_nobonus,
+            'net_tip_bonus' => $net_tip_bonus,
+            'net_final' => $net_final,
+        ]);
+
+        return $driver;
     }
 
     public function getDriverWeekReport($driver_id, $company_id, $tvde_week_id)

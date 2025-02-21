@@ -28,6 +28,7 @@ class TvdeActivity extends Model
         'earnings_two',
         'bonus',
         'tolls',
+        'parks',
         'created_at',
         'updated_at',
         'deleted_at',

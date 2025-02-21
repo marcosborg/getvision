@@ -84,6 +84,9 @@ class TvdeActivityController extends Controller
             $table->editColumn('tolls', function ($row) {
                 return $row->tolls ? $row->tolls : '';
             });
+            $table->editColumn('parks', function ($row) {
+                return $row->parks ? $row->parks : '';
+            });
 
             $table->rawColumns(['actions', 'placeholder', 'tvde_week', 'tvde_operator', 'company']);
 

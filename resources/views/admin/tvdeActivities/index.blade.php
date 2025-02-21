@@ -73,6 +73,9 @@
                                     {{ trans('cruds.tvdeActivity.fields.tolls') }}
                                 </th>
                                 <th>
+                                    {{ trans('cruds.tvdeActivity.fields.parks') }}
+                                </th>
+                                <th>
                                     &nbsp;
                                 </th>
                             </tr>
@@ -140,6 +143,7 @@
 { data: 'earnings_two', name: 'earnings_two' },
 { data: 'bonus', name: 'bonus' },
 { data: 'tolls', name: 'tolls' },
+{ data: 'parks', name: 'parks' },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
     orderCellsTop: true,

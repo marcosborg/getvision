@@ -73,6 +73,22 @@
                                         {{ $tvdeActivity->tolls }}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <th>
+                                        {{ trans('cruds.tvdeActivity.fields.bonus') }}
+                                    </th>
+                                    <td>
+                                        {{ $tvdeActivity->bonus }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {{ trans('cruds.tvdeActivity.fields.parks') }}
+                                    </th>
+                                    <td>
+                                        {{ $tvdeActivity->parks }}
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="form-group">
