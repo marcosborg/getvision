@@ -23,30 +23,6 @@
                             @endif
                             <span class="help-block">{{ trans('cruds.tvdeActivity.fields.tvde_week_helper') }}</span>
                         </div>
-                        <div class="form-group {{ $errors->has('tvde_operator') ? 'has-error' : '' }}">
-                            <label class="required" for="tvde_operator_id">{{ trans('cruds.tvdeActivity.fields.tvde_operator') }}</label>
-                            <select class="form-control select2" name="tvde_operator_id" id="tvde_operator_id" required>
-                                @foreach($tvde_operators as $id => $entry)
-                                    <option value="{{ $id }}" {{ old('tvde_operator_id') == $id ? 'selected' : '' }}>{{ $entry }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('tvde_operator'))
-                                <span class="help-block" role="alert">{{ $errors->first('tvde_operator') }}</span>
-                            @endif
-                            <span class="help-block">{{ trans('cruds.tvdeActivity.fields.tvde_operator_helper') }}</span>
-                        </div>
-                        <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
-                            <label class="required" for="company_id">{{ trans('cruds.tvdeActivity.fields.company') }}</label>
-                            <select class="form-control select2" name="company_id" id="company_id" required>
-                                @foreach($companies as $id => $entry)
-                                    <option value="{{ $id }}" {{ old('company_id') == $id ? 'selected' : '' }}>{{ $entry }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('company'))
-                                <span class="help-block" role="alert">{{ $errors->first('company') }}</span>
-                            @endif
-                            <span class="help-block">{{ trans('cruds.tvdeActivity.fields.company_helper') }}</span>
-                        </div>
                         <div class="form-group {{ $errors->has('driver_code') ? 'has-error' : '' }}">
                             <label class="required" for="driver_code">{{ trans('cruds.tvdeActivity.fields.driver_code') }}</label>
                             <input class="form-control" type="text" name="driver_code" id="driver_code" value="{{ old('driver_code', '') }}" required>
@@ -70,6 +46,22 @@
                                 <span class="help-block" role="alert">{{ $errors->first('earnings_two') }}</span>
                             @endif
                             <span class="help-block">{{ trans('cruds.tvdeActivity.fields.earnings_two_helper') }}</span>
+                        </div>
+                        <div class="form-group {{ $errors->has('bonus') ? 'has-error' : '' }}">
+                            <label for="bonus">{{ trans('cruds.tvdeActivity.fields.bonus') }}</label>
+                            <input class="form-control" type="number" name="bonus" id="bonus" value="{{ old('bonus', '') }}" step="0.01">
+                            @if($errors->has('bonus'))
+                                <span class="help-block" role="alert">{{ $errors->first('bonus') }}</span>
+                            @endif
+                            <span class="help-block">{{ trans('cruds.tvdeActivity.fields.bonus_helper') }}</span>
+                        </div>
+                        <div class="form-group {{ $errors->has('tolls') ? 'has-error' : '' }}">
+                            <label for="tolls">{{ trans('cruds.tvdeActivity.fields.tolls') }}</label>
+                            <input class="form-control" type="number" name="tolls" id="tolls" value="{{ old('tolls', '') }}" step="0.01">
+                            @if($errors->has('tolls'))
+                                <span class="help-block" role="alert">{{ $errors->first('tolls') }}</span>
+                            @endif
+                            <span class="help-block">{{ trans('cruds.tvdeActivity.fields.tolls_helper') }}</span>
                         </div>
                         <div class="form-group">
                             <button class="btn btn-danger" type="submit">

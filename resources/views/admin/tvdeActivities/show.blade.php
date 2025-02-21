@@ -35,22 +35,6 @@
                                 </tr>
                                 <tr>
                                     <th>
-                                        {{ trans('cruds.tvdeActivity.fields.tvde_operator') }}
-                                    </th>
-                                    <td>
-                                        {{ $tvdeActivity->tvde_operator->name ?? '' }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        {{ trans('cruds.tvdeActivity.fields.company') }}
-                                    </th>
-                                    <td>
-                                        {{ $tvdeActivity->company->name ?? '' }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
                                         {{ trans('cruds.tvdeActivity.fields.driver_code') }}
                                     </th>
                                     <td>
@@ -71,6 +55,22 @@
                                     </th>
                                     <td>
                                         {{ $tvdeActivity->earnings_two }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {{ trans('cruds.tvdeActivity.fields.bonus') }}
+                                    </th>
+                                    <td>
+                                        {{ $tvdeActivity->bonus }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {{ trans('cruds.tvdeActivity.fields.tolls') }}
+                                    </th>
+                                    <td>
+                                        {{ $tvdeActivity->tolls }}
                                     </td>
                                 </tr>
                             </tbody>

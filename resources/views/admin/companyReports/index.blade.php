@@ -185,14 +185,13 @@
                         <th>Condutor</th>
                         <th style="text-align: right;">Uber</th>
                         <th style="text-align: right;">Bolt</th>
-                        <th style="text-align: right;">Private</th>
                         <th style="text-align: right;">Operadores</th>
-                        <th style="text-align: right;">Média (4 semanas)</th>
                         <th style="text-align: right;">Ganhos</th>
                         <th style="text-align: right;">Gorjetas</th>
                         <th style="text-align: right;">Abastecimento</th>
+                        <th style="text-align: right;">Portagens</th>
                         <th style="text-align: right;">Ajustes</th>
-                        <th style="text-align: right;">P. frota</th>
+                        <th style="text-align: right;">Dev. Port.</th>
                         <th style="text-align: right;">Saldo</th>
                         <th style="text-align: right">A pagar</th>
                         <th style="text-align: right">Validar</th>
@@ -204,31 +203,17 @@
                     @if ($driver->earnings)
                     <tr>
                         <td>{{ $driver->name }}</td>
-                        <td style="text-align: right;">{{ number_format($driver->earnings['uber']['total_earnings'] ??
-                            0, 2) }} <small>€</small></td>
-                        <td style="text-align: right;">{{ number_format($driver->earnings['bolt']['total_earnings'] ??
-                            0, 2) }} <small>€</small></td>
-                        <td style="text-align: right;">{{ number_format($driver->earnings['private']['total_earnings'] ??
-                            0, 2) }} <small>€</small></td>
-                        <td style="text-align: right;">{{ number_format($driver->earnings['total'] ?? 0, 2) }}
-                            <small>€</small>
-                        </td>
-                        <td style="text-align: right; {{ $driver->earnings['average'] < 400 ? 'color: red;' : '' }}  {{ $driver->earnings['average'] > 400 ? 'color: darkgreen;' : '' }}">{{ number_format($driver->earnings['average'] ?? 0, 2) }}
-                            <small>€</small>
-                        </td>
-                        <td style="text-align: right;"><small>({{ $driver->earnings['percent'] ?? 0 }}%)</small> {{
-                            number_format($driver->earnings['earnings_after_discount'] ??
-                            0, 2) }} <small>€</small></td>
-                        <td style="text-align: right;"><small>({{ $driver->earnings['tips_percent'] ?? 0 }})%</small> {{
-                            number_format($driver->earnings['tips_after_discount'] ?? 0, 2) }} <small>€</small></td>
-                        <td style="text-align: right;">{{ number_format($driver->fuel, 2) }}
-                            <small>€</small>
-                        </td>
-                        <td style="text-align: right">{{ number_format($driver->adjustments, 2) }} <small>€</small></td>
-                        <td style="text-align: right">{{ number_format($driver->fleet_management, 2) }} <small>€</small>
-                        </td>
-                        <td style="text-align: right">{{ number_format($driver->balance, 2) }} <small>€</small></td>
-                        <td style="text-align: right">{{ number_format($driver->total, 2) }} <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['uber'], 2) }} <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['bolt'], 2) }} <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['operators_gross'], 2) }} <small>€</small></td>
+                        <td style="text-align: right;">0.00 <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['operators_tips'], 2) }} <small>€</small></td>
+                        <td style="text-align: right;">0.00 <small>€</small></td>
+                        <td style="text-align: right;">0.00 <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['adjustments'], 2) }} <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['operators_tolls_dev'], 2) }} <small>€</small></td>
+                        <td style="text-align: right;">0.00 <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['net_final'], 2) }} <small>€</small></td>
                         <td style="text-align: right">
                             <div class="checkbox">
                                 <label>
@@ -252,34 +237,25 @@
                 <tfoot>
                     <tr>
                         <th>Totais</th>
-                        <th style="text-align: right;">{{ number_format($totals['total_uber'], 2) }} <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_bolt'], 2) }} <small>€</small>
+                        <th style="text-align: right;">0.00  <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_private'], 2) }} <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_operators'], 2) }}
-                            <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_average'], 2) }}
-                            <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_earnings_after_discount'], 2) }}
-                            <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_tips_after_discount'], 2) }}
-                            <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_fuel_transactions'], 2) }}
-                            <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_adjustments'], 2) }}
-                            <small>€</small>
+                        <th style="text-align: right;">0.00 <small>€</small>
                         </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_fleet_management'], 2) }}
-                            <small>€</small>
-                        </th>
-                        <th style="text-align: right;">{{ number_format($totals['total_drivers'], 2) }} <small>€</small>
+                        <th style="text-align: right;">0.00  <small>€</small>
                         </th>
                     </tr>
                 </tfoot>

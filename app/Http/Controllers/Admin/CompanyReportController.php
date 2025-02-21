@@ -33,6 +33,8 @@ class CompanyReportController extends Controller
 
         $results = $this->getWeekReport($company_id, $tvde_week_id);
 
+        //return $results;
+
         return view('admin.companyReports.index')->with([
             'company_id' => $company_id,
             'tvde_years' => $tvde_years,
@@ -42,7 +44,6 @@ class CompanyReportController extends Controller
             'tvde_weeks' => $tvde_weeks,
             'tvde_week_id' => $tvde_week_id,
             'drivers' => $results['drivers'],
-            'totals' => $results['totals'],
         ]);
 
     }

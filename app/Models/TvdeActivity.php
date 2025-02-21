@@ -26,6 +26,8 @@ class TvdeActivity extends Model
         'driver_code',
         'earnings_one',
         'earnings_two',
+        'bonus',
+        'tolls',
         'created_at',
         'updated_at',
         'deleted_at',

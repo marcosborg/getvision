@@ -236,6 +236,7 @@ class FinancialStatementController extends Controller
 
     public function year($tvde_year_id)
     {
+
         session()->put('tvde_year_id', $tvde_year_id);
         session()->put('tvde_month_id', TvdeMonth::orderBy('number', 'desc')->where('year_id', session()->get('tvde_year_id'))->first()->id);
         session()->put('tvde_week_id', TvdeWeek::orderBy('number', 'desc')->where('tvde_month_id', session()->get('tvde_month_id'))->first()->id);

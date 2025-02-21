@@ -67,6 +67,12 @@
                                     {{ trans('cruds.tvdeActivity.fields.earnings_two') }}
                                 </th>
                                 <th>
+                                    {{ trans('cruds.tvdeActivity.fields.bonus') }}
+                                </th>
+                                <th>
+                                    {{ trans('cruds.tvdeActivity.fields.tolls') }}
+                                </th>
+                                <th>
                                     &nbsp;
                                 </th>
                             </tr>
@@ -132,6 +138,8 @@
 { data: 'driver_code', name: 'driver_code' },
 { data: 'earnings_one', name: 'earnings_one' },
 { data: 'earnings_two', name: 'earnings_two' },
+{ data: 'bonus', name: 'bonus' },
+{ data: 'tolls', name: 'tolls' },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
     orderCellsTop: true,
