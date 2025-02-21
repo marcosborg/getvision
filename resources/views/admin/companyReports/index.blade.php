@@ -210,7 +210,7 @@
                         <td style="text-align: right;">{{ number_format($driver->earnings['net_notip_nobonus_after_contract'], 2) }} <small>€</small></td>
                         <td style="text-align: right;">{{ number_format($driver->earnings['operators_tips'], 2) }} <small>€</small></td>
                         <td style="text-align: right;">{{ number_format($driver->earnings['operators_bonus_dev'], 2) }} <small>€</small></td>
-                        <td style="text-align: right;">0.00 <small>€</small></td>
+                        <td style="text-align: right;">{{ number_format($driver->earnings['fuel_expenses'], 2) }} <small>€</small></td>
                         <td style="text-align: right;">{{ number_format($driver->earnings['adjustments'], 2) }} <small>€</small></td>
                         <td style="text-align: right;">{{ number_format($driver->earnings['operators_tolls_dev'], 2) }} <small>€</small></td>
                         <td style="text-align: right;">{{ number_format($driver->earnings['net_final_team'], 2) }} <small>€</small></td>
@@ -236,31 +236,6 @@
                     @endif
                     @endforeach
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th>Totais</th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00  <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00 <small>€</small>
-                        </th>
-                        <th style="text-align: right;">0.00  <small>€</small>
-                        </th>
-                    </tr>
-                </tfoot>
             </table>
         </div>
     </div>

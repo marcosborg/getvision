@@ -31,7 +31,7 @@ trait Reports
         $drivers = Driver::where('company_id', $company_id)
             ->where([
                 'state_id' => 1,
-                //'id' => 717
+                //'id' => 710
             ])
             ->orderBy('name')
             ->get()
@@ -137,18 +137,30 @@ trait Reports
         $percent = $driver->contract_type->contract_type_ranks[0]->percent;
         $net_notip_nobonus_after_contract = $net_notip_nobonus * ($percent / 100);
 
+        $combustion_transactions = CombustionTransaction::where([
+            'card' => $driver->card->code ?? '',
+            'tvde_week_id' => $tvde_week->id
+        ])->sum('total');
+
+        $electric_transactions = ElectricTransaction::where([
+            'card' => $driver->electric->code ?? '',
+            'tvde_week_id' => $tvde_week->id
+        ])->sum('total');
+
+        $fuel_expenses = $combustion_transactions + $electric_transactions;
+
         switch ($driver->contract_type->id) {
             case 19:
-                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments;
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments - $fuel_expenses;
                 break;
             case 21:
-                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments + $operators_tolls_dev;
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments + $operators_tolls_dev - $fuel_expenses;
                 break;
             case 22:
-                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments;
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments - $fuel_expenses;
                 break;
             default:
-                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments + $operators_tolls_dev;
+                $net_final = $net_notip_nobonus_after_contract + $net_tip_bonus + $adjustments + $operators_tolls_dev - $fuel_expenses;
                 break;
         }
 
@@ -164,6 +176,7 @@ trait Reports
             'net_notip_nobonus' => $net_notip_nobonus,
             'net_tip_bonus' => $net_tip_bonus,
             'net_final' => $net_final,
+            'fuel_expenses' => $fuel_expenses
         ]);
 
         return $driver;
