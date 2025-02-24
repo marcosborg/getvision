@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\CurrentAccount;
 use App\Models\DriversBalance;
 use App\Models\Driver;
+use App\Models\TvdeWeek;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ActivityLaunchesSend;
 
@@ -33,8 +34,6 @@ class CompanyReportController extends Controller
 
         $results = $this->getWeekReport($company_id, $tvde_week_id);
 
-        //return $results;
-
         return view('admin.companyReports.index')->with([
             'company_id' => $company_id,
             'tvde_years' => $tvde_years,
@@ -45,42 +44,38 @@ class CompanyReportController extends Controller
             'tvde_week_id' => $tvde_week_id,
             'drivers' => $results['drivers'],
         ]);
-
     }
 
     public function validateData(Request $request)
     {
         foreach ($request->data as $data) {
 
-            $data = $this->getDriverWeekReport($data['driver']['id'], $data['driver']['company_id'], $data['tvde_week_id']);
+            $tvde_week_id = $data['tvde_week_id'];
+            $tvde_week = TvdeWeek::find($tvde_week_id);
+            $driver_id = $data['driver']['id'];
+            $driver = Driver::find($driver_id);
+            $company_id = $driver->company_id;
+
+            $data = $this->driverWeekReport($tvde_week, $driver, $company_id);
 
             $current_account = new CurrentAccount;
-            $current_account->tvde_week_id = $data['tvde_week_id'];
-            $current_account->driver_id = $data['driver']['id'];
+            $current_account->tvde_week_id = $tvde_week_id;
+            $current_account->driver_id = $driver_id;
             $current_account->data = json_encode($data);
             $current_account->save();
 
             $last_balance = DriversBalance::where([
-                'driver_id' => $data['driver']['id'],
+                'driver_id' => $driver_id,
             ])
                 ->orderBy('tvde_week_id', 'desc')->first();
 
             $driver_balance = new DriversBalance;
-            $driver_balance->driver_id = $data['driver']['id'];
-            $driver_balance->tvde_week_id = $data['tvde_week_id'];
-            $driver_balance->value = $data['final_total'];
-            $driver_balance->balance = $last_balance ? $last_balance->balance + $data['final_total'] : $data['final_total'];
-            $driver_balance->drivers_balance = $last_balance ? $last_balance->balance + $data['final_total'] : $data['final_total'];
+            $driver_balance->driver_id = $driver_id;
+            $driver_balance->tvde_week_id = $tvde_week_id;
+            $driver_balance->value = $data['earnings']['net_final'];
+            $driver_balance->balance = $last_balance ? $last_balance->balance + $data['earnings']['net_final'] : $data['earnings']['net_final'];
+            $driver_balance->drivers_balance = $last_balance ? $last_balance->balance + $data['earnings']['net_final'] : $data['earnings']['net_final'];
             $driver_balance->save();
-
-            /*
-            $email = $data['driver']['email'];
-
-            
-            Notification::route('mail', $email)
-                ->notify(new ActivityLaunchesSend());
-            */ 
-
         }
     }
 
@@ -90,7 +85,10 @@ class CompanyReportController extends Controller
         $company_id = Driver::find($driver_id)->company_id;
         $tvde_week_id = $request->tvde_week_id;
 
-        $data = $this->getDriverWeekReport($driver_id, $company_id, $tvde_week_id);
+        $tvde_week = TvdeWeek::find($tvde_week_id);
+        $driver = Driver::find($driver_id);
+
+        $data = $this->driverWeekReport($tvde_week, $driver, $company_id);
 
         $current_account = CurrentAccount::where([
             'tvde_week_id' => $tvde_week_id,
@@ -105,18 +103,16 @@ class CompanyReportController extends Controller
         ])->delete();
 
         $last_balance = DriversBalance::where([
-            'driver_id' => $data['driver']['id'],
+            'driver_id' => $driver_id,
         ])
             ->orderBy('tvde_week_id', 'desc')->first();
 
         $driver_balance = new DriversBalance;
         $driver_balance->driver_id = $driver_id;
         $driver_balance->tvde_week_id = $tvde_week_id;
-        $driver_balance->value = $data['final_total'];
-        $driver_balance->balance = $last_balance ? $last_balance->balance + $data['final_total'] : $data['final_total'];
-        $driver_balance->drivers_balance = $last_balance ? $last_balance->balance + $data['final_total'] : $data['final_total'];
+        $driver_balance->value = $data['earnings']['net_final'];
+        $driver_balance->balance = $last_balance ? $last_balance->balance + $data['earnings']['net_final'] : $data['earnings']['net_final'];
+        $driver_balance->drivers_balance = $last_balance ? $last_balance->balance + $data['earnings']['net_final'] : $data['earnings']['net_final'];
         $driver_balance->save();
-
     }
-
 }

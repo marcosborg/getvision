@@ -15,7 +15,6 @@ use App\Models\ElectricTransaction;
 use App\Models\TvdeActivity;
 use App\Models\TvdeMonth;
 use App\Models\TvdeWeek;
-use App\Models\TvdeYear;
 use App\Models\CurrentAccount;
 use Gate;
 use Illuminate\Http\Request;
@@ -36,7 +35,6 @@ class FinancialStatementController extends Controller
         $filter = $this->filter();
         $company_id = $filter['company_id'];
         $tvde_week_id = $filter['tvde_week_id'];
-        $tvde_week = $filter['tvde_week'];
         $tvde_years = $filter['tvde_years'];
         $tvde_year_id = $filter['tvde_year_id'];
         $tvde_months = $filter['tvde_months'];
@@ -58,180 +56,30 @@ class FinancialStatementController extends Controller
                 'contract_vat',
                 'team.drivers'
             ]);
-
-            $results = CurrentAccount::where([
+            
+            $current_account = CurrentAccount::where([
                 'tvde_week_id' => $tvde_week_id,
                 'driver_id' => $driver_id
             ])->first();
 
-            if ($results) {
-                $results = json_decode($results->data);
-            } else {
-                $total_earnings_uber = 0;
-                $total_earnings_bolt = 0;
-                $total_earnings_private = 0;
-                $total_tips_uber = 0;
-                $total_tips_bolt = 0;
-                $total_tips_private = 0;
-                $total_earnings = 0;
-                $total_earnings_no_tip = 0;
-                $total_tips = 0;
-                $gross_credits = 0;
-            }
+            $earnings = json_decode($current_account->data, true)['earnings'];
+            //return $earnings;
 
-        } else {
-            $driver = null;
-            //COLLECT ALL DRIVER RESULTS
-            $total_earnings_uber = [];
-            $total_earnings_bolt = [];
-            $total_earnings_private = [];
-            $total_tips_uber = [];
-            $total_tips_bolt = [];
-            $total_tips_private = [];
-            $total_earnings = [];
-            $total_earnings_no_tip = [];
-            $total_tips = [];
-            $gross_credits = [];
-
-            foreach ($drivers as $driver) {
-                $current = CurrentAccount::where([
-                    'tvde_week_id' => $tvde_week_id,
-                    'driver_id' => $driver->id
-                ])->first();
-
-                if ($current) {
-                    $data = json_decode($current->data);
-                    $total_earnings_uber[] = $data->total_earnings_uber;
-                    $total_earnings_bolt[] = $data->total_earnings_bolt;
-                    $total_earnings_private[] = isset($data->total_earnings_private) ? $data->total_earnings_private : 0;
-                    $total_tips_uber[] = $data->total_tips_uber;
-                    $total_tips_bolt[] = $data->total_tips_bolt;
-                    $total_tips_private[] = isset($data->total_tips_private) ? $data->total_tips_private : 0;
-                    $total_earnings[] = $data->total_earnings;
-                    $total_earnings_no_tip[] = $data->total_earnings_no_tip;
-                    $total_tips[] = $data->total_tips;
-                    $gross_credits[] = $data->gross_credits;
-                }
-            }
-
-            $total_earnings_uber = array_sum($total_earnings_uber);
-            $total_earnings_bolt = array_sum($total_earnings_bolt);
-            $total_earnings_private = array_sum($total_earnings_private);
-            $total_tips_uber = array_sum($total_tips_uber);
-            $total_tips_bolt = array_sum($total_tips_bolt);
-            $total_tips_private = array_sum($total_tips_private);
-            $total_earnings = array_sum($total_earnings);
-            $total_earnings_no_tip = array_sum($total_earnings_no_tip);
-            $total_tips = array_sum($total_tips);
-            $gross_credits = array_sum($gross_credits);
         }
 
-        $total_earnings = isset($results) ? $results->total_earnings : $total_earnings ?? 0;
-        $total_after_vat = isset($results) ? $results->total_after_vat : 0;
-        $gross_debts = isset($results) ? $results->gross_debts : 0;
-        $gross_credits = isset($results) ? $results->gross_credits : $gross_credits ?? 0;
-        $final_total = isset($results) ? $results->final_total : 0;
-
-        $team_gross_credits = $results->team_gross_credits ?? 0;
-        $team_liquid_credits = $results->team_liquid_credits ?? 0;
-        $team_final_total = $results->team_final_total ?? 0;
-        $team_final_result = $results->team_final_result ?? 0;
-        $team_results = $results->team_results ?? [];
-
-        if ($team_gross_credits > 0) {
-            $total_earnings = $total_earnings + $team_gross_credits;
-            $total_after_vat = $total_after_vat + $team_liquid_credits;
-            $gross_debts = $gross_debts + $team_final_total;
-            $gross_credits = $gross_credits + $team_liquid_credits;
-            $team_final_result = $team_liquid_credits - $team_final_total;
-            $final_total = $gross_credits - $gross_debts;
-        }
-
-        //GRAFICOS
-
-        $team_earnings = collect();
-
-        foreach ($drivers as $key => $d) {
-            $team_driver_bolt_earnings = TvdeActivity::where([
-                'tvde_week_id' => $tvde_week_id,
-                'tvde_operator_id' => 2,
-                'driver_code' => $d->bolt_name
-            ])
-                ->get()->sum('earnings_two');
-
-            $team_driver_uber_earnings = TvdeActivity::where([
-                'tvde_week_id' => $tvde_week_id,
-                'tvde_operator_id' => 1,
-                'driver_code' => $d->uber_uuid
-            ])
-                ->get()->sum('earnings_two');
-
-            $team_driver_earnings = $team_driver_bolt_earnings + $team_driver_uber_earnings;
-            if ($driver) {
-                $entry = collect([
-                    'driver' => $driver->uber_uuid == $d->uber_uuid || $driver->bolt_name == $d->bolt_name ? $driver->name : 'Motorista ' . $key + 1,
-                    'earnings' => sprintf("%.2f", $team_driver_earnings),
-                    'own' => $driver->uber_uuid == $d->uber_uuid || $driver->bolt_name == $d->bolt_name
-                ]);
-                $team_earnings->add($entry);
-            }
-        }
-
-        $driver_balance = DriversBalance::where([
-            'driver_id' => $driver_id,
-            'tvde_week_id' => $tvde_week_id
-        ])->first();
-
-        return view('admin.financialStatements.index')->with([
-            'company_id' => $company_id,
-            'tvde_year_id' => $tvde_year_id,
-            'tvde_years' => $tvde_years,
-            'tvde_months' => $tvde_months,
-            'tvde_month_id' => $tvde_month_id,
-            'tvde_weeks' => $tvde_weeks,
-            'tvde_week_id' => $tvde_week_id,
-            'drivers' => $drivers,
-            'driver_id' => $driver_id,
-            'contract_type_rank' => isset($results) ? $results->contract_type_rank : 0,
-            'total_earnings_uber' => isset($results) ? $results->total_earnings_uber : $total_earnings_uber ?? 0,
-            'total_tips_uber' => isset($results) ? $results->total_tips_uber : $total_tips_uber ?? 0,
-            'total_uber' => isset($results) ? $results->total_uber : 0,
-            'uber_tip_percent' => isset($results) ? $results->uber_tip_percent : 0,
-            'uber_tip_after_vat' => isset($results) ? $results->uber_tip_after_vat : 0,
-            'total_earnings_bolt' => isset($results) ? $results->total_earnings_bolt : $total_earnings_bolt ?? 0,
-            'total_bolt' => isset($results) ? $results->total_bolt : 0,
-            'total_tips_bolt' => isset($results) ? $results->total_tips_bolt : $total_tips_bolt ?? 0,
-            'bolt_tip_percent' => isset($results) ? $results->bolt_tip_percent : 0,
-            'bolt_tip_after_vat' => isset($results) ? $results->bolt_tip_after_vat : 0,
-            'total_earnings_private' => isset($results) && isset($results->total_earnings_private) ? $results->total_earnings_private : $total_earnings_private ?? 0,
-            'total_private' => isset($results) && isset($results->total_private) ? $results->total_private : 0,
-            'total_tips_private' => isset($results) && isset($results->total_tips_private) ? $results->total_tips_private : $total_tips_private ?? 0,
-            'private_tip_percent' => isset($results) && isset($results->private_tip_percent) ? $results->private_tip_percent : 0,
-            'private_tip_after_vat' => isset($results) && isset($results->private_tip_after_vat) ? $results->private_tip_after_vat : 0,
-            'total_tips' => isset($results) ? $results->total_tips : $total_tips ?? 0,
-            'total_tip_after_vat' => isset($results) ? $results->total_tip_after_vat : 0,
-            'adjustments' => isset($results) ? $results->adjustments : null,
-            'total_earnings' => $total_earnings,
-            'total_earnings_no_tip' => isset($results) ? $results->total_earnings_no_tip : $total_earnings_no_tip ?? 0,
-            'total' => isset($results) ? $results->total : 0,
-            'total_after_vat' => $total_after_vat,
-            'gross_credits' => $gross_credits,
-            'gross_debts' => $gross_debts,
-            'final_total' => $final_total,
-            'driver' => isset($driver) ? $driver : null,
-            'team_earnings' => $team_earnings,
-            'electric_expenses' => isset($results) ? $results->electric_expenses : 0,
-            'combustion_expenses' => isset($results) ? $results->combustion_expenses : 0,
-            'combustion_racio' => isset($results) ? $results->combustion_racio : 0,
-            'electric_racio' => isset($results) ? $results->electric_racio : 0,
-            'total_earnings_after_vat' => isset($results) ? $results->total_earnings_after_vat : 0,
-            'txt_admin' => isset($results) ? $results->txt_admin : 0,
-            'driver_balance' => $driver_balance ?? null,
-            'team_results' => $team_results ?? null,
-            'team_final_total' => $team_final_total,
-            'team_liquid_credits' => $team_liquid_credits,
-            'team_final_result' => $team_final_result
-        ]);
+        return view('admin.financialStatements.index', compact(
+            'company_id',
+            'tvde_week_id',
+            'tvde_years',
+            'tvde_year_id',
+            'tvde_months',
+            'tvde_month_id',
+            'tvde_weeks',
+            'drivers',
+            'driver_id',
+            'driver',
+            'earnings'
+        ));
     }
 
     public function year($tvde_year_id)

@@ -56,7 +56,7 @@
             data: {
                 data: data,
             },
-            success: () => {
+            success: (resp) => {
                 Swal.fire('Atualizado com sucesso').then(() => {
                     location.reload();
                 });
