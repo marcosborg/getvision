@@ -26,7 +26,7 @@
             <div class="info-box mt-4">
                 <i class="bx bx-envelope"></i>
                 <h3>Email</h3>
-                <p>info@expertcom.pt </p>
+                <p>info@GetVision.pt </p>
             </div>
         </div>
         <div class="col-md-6">

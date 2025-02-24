@@ -44,7 +44,7 @@ class ownCarContact extends Notification
     {
         return (new MailMessage)
                     ->line('Existe um pedido de contacto em Trabalhar com viatura própria.')
-                    ->action('Ir para pedido', url('http://expertcom.pt/admin/own-car-forms'))
+                    ->action('Ir para pedido', url('http://GetVision.pt/admin/own-car-forms'))
                     ->line('Nome: ' . $this->OwnCarForm->name)
                     ->line('Email: ' . $this->OwnCarForm->email)
                     ->line('Telefone: ' . $this->OwnCarForm->phone);

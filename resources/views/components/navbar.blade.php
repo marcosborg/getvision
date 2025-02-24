@@ -22,7 +22,7 @@
         </li>
         <li><a class="nav-link" href="/stand">Stand</a></li>
         <li><a class="nav-link" href="/transfers-tours">Transfers e Tours</a></li>
-        <li><a class="nav-link" href="https://linktr.ee/expertcom.pt" target="_new">Fale connosco</a></li>
+        <li><a class="nav-link" href="https://linktr.ee/GetVision.pt" target="_new">Fale connosco</a></li>
         @auth
         <li><a class="getstarted" href="/admin">Dashboard</a></li>
         @else

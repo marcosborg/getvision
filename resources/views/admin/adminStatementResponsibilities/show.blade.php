@@ -123,7 +123,7 @@
             EM "CONTRATOS/DECLARAÇÃO DE RESPONSABILIDADE".</strong></p>
     @endif
     <footer>
-        ExpertCom ©
+        GetVision ©
         <?php echo date("Y");?>
     </footer>
 </body>

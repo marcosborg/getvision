@@ -71,7 +71,7 @@
                                 Rua Faria Guimarães 654 4200-201 Porto<br>
                                 Rua Godinho Faria 468 4465-150 São Mamede Infesta<br><br>
                                 <strong>Telefone:</strong> +351 915 422 233<br>
-                                <strong>Email:</strong> info@expertcom.pt<br>
+                                <strong>Email:</strong> info@GetVision.pt<br>
                             </p>
                             <div class="social-links mt-3">
                                 <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>

@@ -101,7 +101,7 @@ class RecruitmentFormController extends Controller
         }
 
         if ($sendEmail == true) {
-            Notification::route('mail', $recruitmentForm->company->email ?? 'info@expertcom.pt')
+            Notification::route('mail', $recruitmentForm->company->email ?? 'info@GetVision.pt')
                 ->notify(new RecruitmentFormNotification($recruitmentForm, 'Alteração ao estado do recrutamento'));
         }
 

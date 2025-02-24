@@ -244,7 +244,7 @@
         </tbody>
     </table>
     <footer>
-        ExpertCom ©
+        GetVision ©
         <?php echo date("Y");?>
     </footer>
 </body>

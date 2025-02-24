@@ -61,7 +61,7 @@ class RecruitmentFormNotification extends Notification
             ->line('<strong>Canal: </strong>' . $this->recruitmentForm->chanel)
             ->line('<strong>Horário: </strong>' . $this->recruitmentForm->daytime)
             ->action('Curriculum vitae', url($this->recruitmentForm->cv && $this->recruitmentForm->cv->original_url ? $this->recruitmentForm->cv->original_url : ''))
-            ->line('Obrigado por utilizar os serviçoes da Expertcom!');
+            ->line('Obrigado por utilizar os serviçoes da GetVision!');
     }
 
     /**

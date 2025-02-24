@@ -31,7 +31,7 @@ class TransferToursController extends Controller
     {
         $transferForm = TransferForm::create($request->all());
 
-        Notification::route('mail', 'info@expertcom.pt')
+        Notification::route('mail', 'info@GetVision.pt')
             ->notify(new transferTourContact($transferForm));
 
         return redirect()->back()->with('message', 'Envaido com sucesso');

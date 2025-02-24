@@ -8,7 +8,7 @@
         <div class="col-md-6">
             <div class="error-template">
                 <h1>
-                    ExpertCom</h1>
+                    GetVision</h1>
                 <h2>
                     Página não encontrada.</h2>
             </div>
