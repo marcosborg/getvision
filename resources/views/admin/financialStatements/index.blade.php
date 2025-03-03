@@ -67,6 +67,10 @@
                                 <th>Gorjetas e bonus <small>(Depois dos descontos)</small></th>
                                 <td style="text-align: right;">{{ number_format($earnings->earnings->net_tip_bonus ?? 0, 2) }}€</td>
                             </tr>
+                            <tr>
+                                <th>Totais <small>(Depois dos descontos)</small></th>
+                                <td style="text-align: right;">{{ number_format($earnings->earnings->operators_final ?? 0, 2) }}€</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -221,3 +225,4 @@
     });
 </script>
 @endsection
+<script>console.log({!! json_encode($earnings) !!})</script>

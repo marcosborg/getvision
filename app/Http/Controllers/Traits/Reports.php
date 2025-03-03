@@ -197,7 +197,8 @@ trait Reports
             'net_tip_bonus' => $net_tip_bonus,
             'net_final' => $net_final + $net_final_team,
             'fuel_expenses' => $fuel_expenses,
-            'net_final_team' => $net_final_team
+            'net_final_team' => $net_final_team,
+            'operators_final' => $net_notip_nobonus + $net_tip_bonus
         ]);
 
         return $driver;
