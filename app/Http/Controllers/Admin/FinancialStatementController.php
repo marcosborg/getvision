@@ -42,30 +42,30 @@ class FinancialStatementController extends Controller
         $tvde_weeks = $filter['tvde_weeks'];
         $drivers = $filter['drivers'];
 
-        $driver_id = session()->get('driver_id') ? session()->get('driver_id') : $driver_id = 0;
+        $driver_id = session()->has('driver_id') ? session()->get('driver_id') : $driver_id = 710;        
 
         if (!session()->has('company_id')) {
             $company_id = auth()->user()->company->id;
             session()->put('company_id', $company_id);
         }
 
-        if ($driver_id != 0) {
+        $driver = Driver::find($driver_id)->load([
+            'contract_type.contract_type_ranks',
+            'contract_vat',
+            'team.drivers'
+        ]);
 
-            $driver = Driver::find($driver_id)->load([
-                'contract_type.contract_type_ranks',
-                'contract_vat',
-                'team.drivers'
-            ]);
-            
-            $current_account = CurrentAccount::where([
-                'tvde_week_id' => $tvde_week_id,
-                'driver_id' => $driver_id
-            ])->first();
+        $current_account = CurrentAccount::where([
+            'tvde_week_id' => $tvde_week_id,
+            'driver_id' => $driver_id
+        ])->first();
 
-            $earnings = json_decode($current_account->data, true)['earnings'];
-            //return $earnings;
+        $earnings = json_decode($current_account->data);
 
-        }
+        $drivers_balance = DriversBalance::where([
+            'tvde_week_id' => $tvde_week_id,
+            'driver_id' => $driver_id
+        ])->first();
 
         return view('admin.financialStatements.index', compact(
             'company_id',
@@ -78,7 +78,8 @@ class FinancialStatementController extends Controller
             'drivers',
             'driver_id',
             'driver',
-            'earnings'
+            'earnings',
+            'drivers_balance'
         ));
     }
 
@@ -316,7 +317,6 @@ class FinancialStatementController extends Controller
                     $backgrounds[] = '#00a65a94';
                 }
             }
-
         }
 
         $chart1 = "https://quickchart.io/chart?c={type:'bar',data:{labels:" . json_encode($labels) . ",datasets:[{borderWidth: 1, label:'Valor faturado',data:" . json_encode($earnings) . "}]}}";
@@ -407,8 +407,8 @@ class FinancialStatementController extends Controller
             'chart1' => $chart1,
             'chart2' => $chart2,
         ])->setOption([
-                    'isRemoteEnabled' => true,
-                ]);
+            'isRemoteEnabled' => true,
+        ]);
 
 
         if ($request->download) {
@@ -419,7 +419,6 @@ class FinancialStatementController extends Controller
         } else {
             return $pdf->stream();
         }
-
     }
 
     public function updateBalance(Request $request)
@@ -435,5 +434,4 @@ class FinancialStatementController extends Controller
         $drivers_balance->drivers_balance = $request->balance;
         $drivers_balance->save();
     }
-
 }

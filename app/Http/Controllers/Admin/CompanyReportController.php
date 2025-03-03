@@ -42,7 +42,7 @@ class CompanyReportController extends Controller
             'tvde_month_id' => $tvde_month_id,
             'tvde_weeks' => $tvde_weeks,
             'tvde_week_id' => $tvde_week_id,
-            'drivers' => $results['drivers'],
+            'drivers' => $results,
         ]);
     }
 

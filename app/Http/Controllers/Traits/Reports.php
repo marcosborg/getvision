@@ -31,7 +31,7 @@ trait Reports
         $drivers = Driver::where('company_id', $company_id)
             ->where([
                 'state_id' => 1,
-            ])
+             ])
             ->orderBy('name')
             ->get()
             ->load([
@@ -59,7 +59,7 @@ trait Reports
             }
             $net_final_team = array_sum($net_final_team);
             $driver->earnings['net_final_team'] = $net_final_team;
-            $driver->earnings['net_final'] = $driver->earnings['net_final'] + $net_final_team;
+            $driver->earnings['net_final'] = $driver->earnings['net_final'];
 
             $current_account = CurrentAccount::where([
                 'tvde_week_id' => $tvde_week_id,
@@ -69,9 +69,7 @@ trait Reports
             $driver->current_account = $current_account;
         }
 
-        return [
-            'drivers' => $drivers,
-        ];
+        return $drivers;
     }
 
     private function driverWeekReport($tvde_week, $driver, $company_id)
@@ -170,6 +168,22 @@ trait Reports
                 break;
         }
 
+        //VERIFICAÇÃO EQUIPA
+        $net_final_team = [];
+        if ($driver->team->count() > 0) {
+            foreach ($driver->team as $team) {
+                foreach ($team->drivers as $team_driver) {
+                    $team_driver = $this->driverWeekReport($tvde_week, $team_driver, $company_id);
+                    $company_margin = $team_driver->earnings['net_notip_nobonus'] * 0.1;
+                    $operators_tolls_dev = $team_driver->earnings['operators_tolls_dev'];
+                    $team_net = $team_driver->earnings['net_notip_nobonus'] - $company_margin - $team_driver->earnings['net_final'] + $operators_tolls_dev;
+                    $net_final_team[] = $team_net;
+                }
+            }
+        }
+
+        $net_final_team = array_sum($net_final_team);
+
         $driver->earnings = collect([
             'uber' => $uber_gross,
             'bolt' => $bolt_gross,
@@ -181,8 +195,9 @@ trait Reports
             'adjustments' => $adjustments,
             'net_notip_nobonus' => $net_notip_nobonus,
             'net_tip_bonus' => $net_tip_bonus,
-            'net_final' => $net_final,
-            'fuel_expenses' => $fuel_expenses
+            'net_final' => $net_final + $net_final_team,
+            'fuel_expenses' => $fuel_expenses,
+            'net_final_team' => $net_final_team
         ]);
 
         return $driver;
