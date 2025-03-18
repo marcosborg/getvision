@@ -135,9 +135,12 @@ trait Reports
         $operators_tolls_dev = $tolls_dev_uber + $tolls_dev_bolt + $operators_parks_dev;
         $operators_bonus_dev = $bonus_dev_uber + $bonus_dev_bolt;
 
+        $vat_percent = (100 - $driver->contract_vat->percent)/100;
+        $vat_tips = (100 - $driver->contract_vat->tips)/100;
+
         $gross_notip_nobonus = $operators_gross - $operators_tips - $operators_bonus_dev;
-        $net_notip_nobonus = $gross_notip_nobonus * 0.94;
-        $net_tip_bonus = ($operators_tips + $operators_bonus_dev) * 0.94;
+        $net_notip_nobonus = $gross_notip_nobonus * $vat_percent;
+        $net_tip_bonus = ($operators_tips + $operators_bonus_dev) * $vat_tips;
         $percent = $driver->contract_type->contract_type_ranks[0]->percent;
         $net_notip_nobonus_after_contract = $net_notip_nobonus * ($percent / 100);
 
